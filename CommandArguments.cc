@@ -46,7 +46,7 @@ CommandArguments::AddParam(const std::string &name, const std::string &desc,
 
 CommandArguments::NumStorageType *
 CommandArguments::AddNumber(const std::string &name, const std::string &desc,
-                            __int64 default_value) {
+                            long long default_value) {
   CommandArguments::NumStorageType *val(nullptr);
 
   if (!IsNameTaken(name)) {

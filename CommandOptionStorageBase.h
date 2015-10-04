@@ -7,9 +7,10 @@ template <class T> class CommandOptionStorageBase : public CommandOption {
 public:
   T storage_;
 
-  CommandOptionStorageBase() {}
+  CommandOptionStorageBase() : CommandOption() {}
 
-  CommandOptionStorageBase(T default_val) : storage_(default_val) {}
+  CommandOptionStorageBase(T default_val)
+      : CommandOption(), storage_(default_val) {}
 
   virtual ~CommandOptionStorageBase() {}
 
