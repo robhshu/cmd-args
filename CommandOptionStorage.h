@@ -32,6 +32,18 @@ public:
 };
 
 template <>
+class CommandOptionStorage<__int64> : public CommandOptionStorageBase<__int64> {
+public:
+  CommandOptionStorage(__int64 default_val)
+      : CommandOptionStorageBase(default_val) {}
+
+  virtual bool Parse(const std::string &raw) {
+    storage_ = std::strtoll(raw.c_str(), nullptr, 10);
+    return true;
+  }
+};
+
+template <>
 class CommandOptionStorage<std::string>
     : public CommandOptionStorageBase<std::string> {
 public:

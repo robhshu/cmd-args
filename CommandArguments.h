@@ -8,19 +8,15 @@
 #include <string>
 
 class CommandArguments {
-  typedef std::string StringType;
-  typedef bool FlagType;
-
   typedef std::vector<CommandOption *> StorageType;
   typedef StorageType::const_iterator StorageTypeCIt;
 
 public:
-  typedef CommandOptionStorage<StringType> StringStorageType;
+  typedef CommandOptionStorage<std::string> StringStorageType;
   typedef CommandOptionStorage<bool> FlagStorageType;
-  typedef CommandOptionStorage<unsigned int> NumStorageType;
-  typedef CommandOptionStorage<signed int> SignedNumStorageType;
+  typedef CommandOptionStorage<__int64> NumStorageType;
 
-  typedef CommandOptionStorage<std::vector<StringType>> StringListStorageType;
+  typedef CommandOptionStorage<std::vector<std::string>> StringListStorageType;
 
 private:
   StorageType storage_;
@@ -35,7 +31,7 @@ public:
   StringStorageType *AddParam(const std::string &name, const std::string &desc,
                               const std::string &default_value);
   NumStorageType *AddNumber(const std::string &name, const std::string &desc,
-                            unsigned int default_value);
+                            __int64 default_value);
   FlagStorageType *AddFlag(const std::string &name, const std::string &desc,
                            bool default_value);
   StringListStorageType *AddParamList(const std::string &name,
