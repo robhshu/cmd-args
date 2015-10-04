@@ -13,9 +13,10 @@ Modern, lightweight command-line argument helper written in C++.
 ## Usage
 
 ```cpp
-#include "CommandArguments.h"
+#include "cmd-args/CommandArguments.h"
 #include <stdio.h>
 
+// Usage: main some_command --verbose=1
 int main(int argc, char** argv)
 {
   CommandArguments Args;
@@ -27,7 +28,9 @@ int main(int argc, char** argv)
     return 0;
   }
 
-  printf("Verbose == %s", flagVerbose->Get() ? "true" : "false");
+  printf("Verbose == %s\n", flagVerbose->Get() ? "true" : "false");
+  
+  printf("Other commands: %u\n", Args.Get().size());
 
   return 0;
 }
