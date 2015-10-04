@@ -3,8 +3,7 @@
 
 #include <string>
 
-class CommandOption
-{
+class CommandOption {
 protected:
   friend class CommandArguments;
 
@@ -13,12 +12,10 @@ protected:
   bool required_;
 
 public:
-  CommandOption()
-    : required_(true)
-  { }
+  CommandOption() : required_(true) {}
 
   virtual ~CommandOption() {}
-  virtual bool Parse(const std::string& raw) { return false; }
+  virtual bool Parse(const std::string &raw) { return false; }
 };
 
 #endif

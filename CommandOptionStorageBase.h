@@ -3,25 +3,17 @@
 
 #include "CommandOption.h"
 
-template<class T>
-class CommandOptionStorageBase : public CommandOption
-{
+template <class T> class CommandOptionStorageBase : public CommandOption {
 public:
   T storage_;
 
-  CommandOptionStorageBase()
-  { }
+  CommandOptionStorageBase() {}
 
-  CommandOptionStorageBase(T default_val)
-    : storage_(default_val)
-  { }
+  CommandOptionStorageBase(T default_val) : storage_(default_val) {}
 
-  virtual ~CommandOptionStorageBase()
-  { }
+  virtual ~CommandOptionStorageBase() {}
 
-  const T& Get() const {
-    return storage_;
-  }
+  const T &Get() const { return storage_; }
 };
 
 #endif
