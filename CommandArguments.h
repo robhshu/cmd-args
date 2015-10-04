@@ -16,7 +16,7 @@ public:
   typedef CommandOptionStorage<bool> FlagStorageType;
   typedef CommandOptionStorage<long long> NumStorageType;
 
-  typedef CommandOptionStorage<std::vector<std::string>> StringListStorageType;
+  typedef CommandOptionStorage<std::vector<std::string> > StringListStorageType;
 
 private:
   StorageType storage_;
