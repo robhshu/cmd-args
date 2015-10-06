@@ -8,6 +8,7 @@ Modern, lightweight command-line argument helper written in C++.
 * Flags (`--value`, `--value=1`, `--value=0`)
 * Parameters (`--key=value`)
 * Nameless commands
+* Function callbacks (used to implemented `--help`)
 
 
 ## Usage
