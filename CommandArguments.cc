@@ -76,6 +76,22 @@ CommandArguments::AddFlag(const std::string &name, const std::string &desc,
   return val;
 }
 
+CommandArguments::CallbackStorageType *CommandArguments::AddCallback(
+    const std::string &name, const std::string &desc,
+    std::function<bool(const std::string &)> callback) {
+  CommandArguments::CallbackStorageType *val(nullptr);
+
+  if (!IsNameTaken(name)) {
+    val = new CommandArguments::CallbackStorageType(callback);
+    val->name_ = name;
+    val->desc_ = desc;
+
+    Register(*val);
+  }
+
+  return val;
+}
+
 CommandArguments::StringListStorageType *
 CommandArguments::AddParamList(const std::string &name,
                                const std::string &desc) {
@@ -100,15 +116,15 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
 
   while (arg < argc) {
 
-    // cleanup arg
-    // strip --NAME=VAL to NAME
+    // Extract from format [--]NAME[=VAL] to NAME and [VAL]
     char *szArgPtr = argv[arg];
     while (*szArgPtr == '-')
       ++szArgPtr;
 
     char *szValPtr = szArgPtr;
-    while (*szValPtr && *szValPtr != '=')
+    while (*szValPtr && *szValPtr != '=') {
       ++szValPtr;
+    }
 
     if (*szValPtr) {
       // Cut out name
@@ -123,12 +139,10 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
 
     std::vector<CommandOption *>::iterator it(storage_.begin());
     while (it != storage_.end()) {
-
       if ((*it)->name_ == szArgPtr) {
         if (!(*it)->Parse(szValPtr)) {
           return false;
         }
-
         break;
       }
 
@@ -142,8 +156,6 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
 
     ++arg;
   }
-
-  // warning if trailing arguments are listed?
 
   return true;
 }

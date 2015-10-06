@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <functional>
 
 template <class T>
 class CommandOptionStorage : public CommandOptionStorageBase<T> {
@@ -34,7 +35,8 @@ public:
 };
 
 template <>
-class CommandOptionStorage<long long> : public CommandOptionStorageBase<long long> {
+class CommandOptionStorage<long long>
+    : public CommandOptionStorageBase<long long> {
 public:
   CommandOptionStorage(long long default_val)
       : CommandOptionStorageBase(default_val) {}
@@ -64,6 +66,22 @@ class CommandOptionStorage<std::vector<std::string> >
 public:
   virtual bool Parse(const std::string &raw) {
     storage_.push_back(raw);
+    return true;
+  }
+};
+
+template <>
+class CommandOptionStorage<std::function<bool(const std::string &)>>
+    : public CommandOptionStorageBase<
+          std::function<bool(const std::string &)>> {
+public:
+  CommandOptionStorage(std::function<bool(const std::string &)> function_ptr)
+      : CommandOptionStorageBase(function_ptr) {}
+
+  virtual bool Parse(const std::string &raw) {
+    if (storage_) {
+      return storage_(raw);
+    }
     return true;
   }
 };

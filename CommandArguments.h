@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 class CommandArguments {
   typedef std::vector<CommandOption *> StorageType;
@@ -15,6 +16,8 @@ public:
   typedef CommandOptionStorage<std::string> StringStorageType;
   typedef CommandOptionStorage<bool> FlagStorageType;
   typedef CommandOptionStorage<long long> NumStorageType;
+  typedef CommandOptionStorage<std::function<bool(const std::string &)>>
+      CallbackStorageType;
 
   typedef CommandOptionStorage<std::vector<std::string> > StringListStorageType;
 
@@ -34,6 +37,9 @@ public:
                             long long default_value);
   FlagStorageType *AddFlag(const std::string &name, const std::string &desc,
                            bool default_value);
+  CallbackStorageType *
+  AddCallback(const std::string &name, const std::string &desc,
+              std::function<bool(const std::string &)> callback);
   StringListStorageType *AddParamList(const std::string &name,
                                       const std::string &desc);
 
