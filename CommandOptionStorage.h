@@ -14,7 +14,8 @@ class CommandOptionStorage : public CommandOptionStorageBase<T> {
 public:
   CommandOptionStorage() : CommandOptionStorageBase<T>() {}
 
-  CommandOptionStorage(T default_val) : CommandOptionStorageBase<T>(default_val) {}
+  CommandOptionStorage(T default_val)
+      : CommandOptionStorageBase<T>(default_val) {}
 };
 
 template <>
@@ -61,8 +62,8 @@ public:
 };
 
 template <>
-class CommandOptionStorage<std::vector<std::string> >
-    : public CommandOptionStorageBase<std::vector<std::string> > {
+class CommandOptionStorage<std::vector<std::string>>
+    : public CommandOptionStorageBase<std::vector<std::string>> {
 public:
   virtual bool Parse(const std::string &raw) {
     storage_.push_back(raw);

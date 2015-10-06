@@ -19,11 +19,14 @@ public:
   typedef CommandOptionStorage<std::function<bool(const std::string &)>>
       CallbackStorageType;
 
-  typedef CommandOptionStorage<std::vector<std::string> > StringListStorageType;
+  typedef CommandOptionStorage<std::vector<std::string>> StringListStorageType;
 
 private:
   StorageType storage_;
-  CommandArguments::StringListStorageType *trailing_args_;
+  StringListStorageType *trailing_args_;
+  CallbackStorageType *default_help;
+
+  bool DefaultHelpCallback(const std::string &args);
 
 public:
   CommandArguments();

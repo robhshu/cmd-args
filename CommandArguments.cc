@@ -1,7 +1,40 @@
 #include "CommandArguments.h"
 
-CommandArguments::CommandArguments() : trailing_args_(nullptr) {
+#include <algorithm>
+#include <iostream>
+#include <iomanip>
+
+bool CommandArguments::DefaultHelpCallback(const std::string &args) {
+  std::vector<CommandOption *>::iterator it(storage_.begin());
+  std::streamsize len(0);
+
+  while (it != storage_.end()) {
+    len = std::max(len, static_cast<std::streamsize>((*it)->name_.size()));
+    ++it;
+  }
+
+  // Tabbed
+  len += 2;
+
+  it = storage_.begin();
+
+  while (it != storage_.end()) {
+    if (!(*it)->name_.empty()) {
+      std::cout << std::left << std::setw(len) << (*it)->name_ << (*it)->desc_
+                << std::endl;
+    }
+    ++it;
+  }
+
+  return false;
+}
+
+CommandArguments::CommandArguments()
+    : trailing_args_(nullptr), default_help(nullptr) {
   trailing_args_ = AddParamList("", "List of trailing parameters");
+  default_help = AddCallback("help", "List all commands",
+                             std::bind(&CommandArguments::DefaultHelpCallback,
+                                       this, std::placeholders::_1));
 }
 
 CommandArguments::~CommandArguments() {}
@@ -113,6 +146,8 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
   int arg = 1;
 
   trailing_args_->storage_.clear();
+
+  // todo: sort arguments by name
 
   while (arg < argc) {
 
