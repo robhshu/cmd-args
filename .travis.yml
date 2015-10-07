@@ -12,3 +12,10 @@ os:
 
 script:
   - make
+
+after_success:
+  - ./main
+  - ./main --verbose
+  - ./main --verbose=1
+  - ./main --verbose=0
+  - ./main --help
