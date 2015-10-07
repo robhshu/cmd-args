@@ -13,11 +13,12 @@ Modern, lightweight command-line argument helper written in C++.
 
 ## Usage
 
+### Code
+
 ```cpp
 #include "cmd-args/CommandArguments.h"
-#include <stdio.h>
+#include <iostream>
 
-// Usage: main some_command --verbose=1
 int main(int argc, char** argv)
 {
   CommandArguments Args;
@@ -25,14 +26,16 @@ int main(int argc, char** argv)
   CommandArguments::FlagStorageType *flagVerbose(Args.AddFlag("verbose", "Verbose console output", false));
 
   if (!Args.ApplyArgumentList(argc, argv)) {
-    printf("Failed to read argument list\n");
     return 0;
   }
 
-  printf("Verbose == %s\n", flagVerbose->Get() ? "true" : "false");
-  
-  printf("Other commands: %u\n", Args.Get().size());
+  std::cout << "Verbose == " << flagVerbose->Get() << std::endl;
 
   return 0;
 }
 ```
+
+### Examples
+
+* Set the verbose flag to true using `main --verbose` or `main --verbose=1`. The value by default is `false`.
+* View all supported arguments using `main --help`
