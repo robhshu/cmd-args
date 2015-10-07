@@ -1,5 +1,7 @@
 # cmd-args
 
+[![Build Status](https://travis-ci.org/robhshu/cmd-args.svg)](https://travis-ci.org/robhshu/cmd-args)
+
 Modern, lightweight command-line argument helper written in C++.
 
 
