@@ -141,6 +141,41 @@ CommandArguments::AddParamList(const std::string &name,
   return val;
 }
 
+bool CommandArguments::Process(const std::string &arg) {
+  const char val_char('=');
+
+  std::string::size_type val_split(arg.find_first_of(val_char));
+
+  std::string name;
+  std::string value;
+
+  if (val_split != arg.npos) {
+    name = arg.substr(0, val_split);
+    value = arg.substr(val_split + sizeof(val_char));
+  } else {
+    name = arg;
+  }
+
+  std::vector<CommandOption *>::iterator it(storage_.begin());
+  while (it != storage_.end()) {
+    if ((*it)->name_ == name) {
+      if (!(*it)->Parse(value)) {
+        return false;
+      }
+      break;
+    }
+
+    ++it;
+  }
+
+  if (it == storage_.end()) {
+    // Add unregistered item
+    trailing_args_->Parse(value);
+  }
+
+  return true;
+}
+
 bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
   // todo: build list of required arguments met
   int arg = 1;
@@ -150,43 +185,29 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
   // todo: sort arguments by name
 
   while (arg < argc) {
-
     // Extract from format [--]NAME[=VAL] to NAME and [VAL]
     char *szArgPtr = argv[arg];
-    while (*szArgPtr == '-')
+
+    if (*szArgPtr == '-') {
       ++szArgPtr;
 
-    char *szValPtr = szArgPtr;
-    while (*szValPtr && *szValPtr != '=') {
-      ++szValPtr;
-    }
+      // Check for full name (--NAME)
+      if (*szArgPtr == '-') {
+        ++szArgPtr;
 
-    if (*szValPtr) {
-      // Cut out name
-      *szValPtr = 0;
-
-      // Leave arg value
-      ++szValPtr;
-    } else {
-      // Reset value to full name
-      szValPtr = szArgPtr;
-    }
-
-    std::vector<CommandOption *>::iterator it(storage_.begin());
-    while (it != storage_.end()) {
-      if ((*it)->name_ == szArgPtr) {
-        if (!(*it)->Parse(szValPtr)) {
+        if (!Process(szArgPtr)) {
           return false;
         }
-        break;
+      } else {
+        // Single name (-NAME)
+
+        if (!Process(szArgPtr)) {
+          return false;
+        }
       }
-
-      ++it;
-    }
-
-    if (it == storage_.end()) {
+    } else {
       // Adding unregistered item
-      trailing_args_->Parse(szValPtr);
+      trailing_args_->Parse(szArgPtr);
     }
 
     ++arg;

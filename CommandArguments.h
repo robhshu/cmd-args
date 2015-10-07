@@ -28,6 +28,8 @@ private:
 
   bool DefaultHelpCallback(const std::string &args);
 
+  bool Process(const std::string &arg);
+
 public:
   CommandArguments();
   ~CommandArguments();
