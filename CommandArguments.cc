@@ -220,3 +220,8 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
 
   return true;
 }
+
+void CommandArguments::ShowUsage() {
+  const std::string no_arg;
+  DefaultHelpCallback(no_arg);
+}

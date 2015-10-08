@@ -53,6 +53,7 @@ public:
 
   void Register(CommandOption &arg);
   bool ApplyArgumentList(int argc, char **argv);
+  void ShowUsage();
 
   const std::string &GetInvalid() const { return error_arg_; }
 };
