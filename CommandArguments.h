@@ -25,10 +25,11 @@ private:
   StorageType storage_;
   StringListStorageType *trailing_args_;
   CallbackStorageType *default_help;
+  std::string error_arg_;
 
   bool DefaultHelpCallback(const std::string &args);
 
-  bool Process(const std::string &arg);
+  bool PeekArg(std::string &arg);
 
 public:
   CommandArguments();
@@ -52,6 +53,8 @@ public:
 
   void Register(CommandOption &arg);
   bool ApplyArgumentList(int argc, char **argv);
+
+  const std::string &GetInvalid() const { return error_arg_; }
 };
 
 #endif

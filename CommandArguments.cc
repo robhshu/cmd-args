@@ -141,73 +141,78 @@ CommandArguments::AddParamList(const std::string &name,
   return val;
 }
 
-bool CommandArguments::Process(const std::string &arg) {
-  const char val_char('=');
+bool CommandArguments::PeekArg(std::string &arg) {
+  const char tack_char('-');
+  std::string::size_type tack_pos(arg.find_first_not_of(tack_char));
 
-  std::string::size_type val_split(arg.find_first_of(val_char));
-
-  std::string name;
-  std::string value;
-
-  if (val_split != arg.npos) {
-    name = arg.substr(0, val_split);
-    value = arg.substr(val_split + sizeof(val_char));
-  } else {
-    name = arg;
+  // Only allow double-tacks for now (--arg)
+  if (tack_pos == 2) {
+    arg = arg.substr(2);
+    return true;
   }
 
-  std::vector<CommandOption *>::iterator it(storage_.begin());
-  while (it != storage_.end()) {
-    if ((*it)->name_ == name) {
-      if (!(*it)->Parse(value)) {
-        return false;
-      }
-      break;
-    }
-
-    ++it;
-  }
-
-  if (it == storage_.end()) {
-    // Add unregistered item
-    trailing_args_->Parse(value);
-  }
-
-  return true;
+  return false;
 }
 
 bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
   // todo: build list of required arguments met
   int arg = 1;
 
+  error_arg_.clear();
   trailing_args_->storage_.clear();
 
   // todo: sort arguments by name
 
   while (arg < argc) {
-    // Extract from format [--]NAME[=VAL] to NAME and [VAL]
-    char *szArgPtr = argv[arg];
+    // Convert to string
+    std::string arg_str(argv[arg]);
 
-    if (*szArgPtr == '-') {
-      ++szArgPtr;
+    if (PeekArg(arg_str)) {
+      const char val_char('=');
+      std::string::size_type split_pos(arg_str.find_first_of(val_char, 1));
 
-      // Check for full name (--NAME)
-      if (*szArgPtr == '-') {
-        ++szArgPtr;
+      std::string name;
+      std::string value;
 
-        if (!Process(szArgPtr)) {
-          return false;
-        }
+      if (split_pos != arg_str.npos) {
+        name = arg_str.substr(0, split_pos);
+        value = arg_str.substr(split_pos + sizeof(val_char));
       } else {
-        // Single name (-NAME)
+        name = arg_str;
 
-        if (!Process(szArgPtr)) {
-          return false;
+        // Try to determine the value using the next argument
+
+        if (arg + 1 < argc) {
+          std::string val_str(argv[arg + 1]);
+
+          if (!PeekArg(val_str)) {
+            ++arg;
+            value = val_str;
+          }
         }
       }
+
+      std::vector<CommandOption *>::iterator it(storage_.begin());
+      while (it != storage_.end()) {
+        if ((*it)->name_ == name) {
+          if (!(*it)->Parse(value)) {
+            return false;
+          }
+          break;
+        }
+
+        ++it;
+      }
+
+      if (it == storage_.end()) {
+        // Incorrect usage; unrecognised argument
+        error_arg_ = name;
+        return false;
+      }
+
     } else {
       // Adding unregistered item
-      trailing_args_->Parse(szArgPtr);
+      trailing_args_->Parse(arg_str);
     }
 
     ++arg;
