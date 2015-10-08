@@ -7,8 +7,8 @@ Modern, lightweight command-line argument helper written in C++.
 
 ## Supports
 
-* Flags (`--value`, `--value=1`, `--value=0`)
-* Parameters (`--key=value`)
+* Flags (`--value`, `--value=1`, `--value=0`, `--value 1`)
+* Parameters (`--key=value`, `--key value`)
 * Nameless commands
 * Function callbacks (used to implemented `--help`)
 
@@ -39,5 +39,12 @@ int main(int argc, char** argv)
 
 ### Examples
 
-* Set the verbose flag to true using `main --verbose` or `main --verbose=1`. The value by default is `false`.
-* View all supported arguments using `main --help`
+Enable verbose mode:
+
+* `main --verbose`
+* `main --verbose=1`
+
+View all supported arguments
+
+* `main --help`
+
