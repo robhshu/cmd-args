@@ -7,8 +7,8 @@ Modern, lightweight command-line argument helper written in C++.
 
 ## Supports
 
-* Flags (`--value`, `--value=1`, `--value=0`)
-* Parameters (`--key=value`)
+* Flags (`--value`, `--value=1`, `--value=0`, `--value 1`)
+* Parameters (`--key=value`, `--key value`)
 * Nameless commands
 * Function callbacks (used to implemented `--help`)
 
@@ -18,16 +18,22 @@ Modern, lightweight command-line argument helper written in C++.
 ### Code
 
 ```cpp
-#include "cmd-args/CommandArguments.h"
+#include "CommandArguments.h"
 #include <iostream>
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
   CommandArguments Args;
 
-  CommandArguments::FlagStorageType *flagVerbose(Args.AddFlag("verbose", "Verbose console output", false));
+  CommandArguments::FlagStorageType *flagVerbose(
+      Args.AddFlag("verbose", "Verbose console output", false));
 
   if (!Args.ApplyArgumentList(argc, argv)) {
+    if (Args.GetInvalid().empty()) {
+      Args.ShowUsage();
+    } else {
+      std::cout << "Unrecognised option \"" << Args.GetInvalid() << "\""
+                << std::endl;
+    }
     return 0;
   }
 
@@ -35,9 +41,18 @@ int main(int argc, char** argv)
 
   return 0;
 }
+
 ```
 
 ### Examples
 
-* Set the verbose flag to true using `main --verbose` or `main --verbose=1`. The value by default is `false`.
-* View all supported arguments using `main --help`
+Enable verbose mode:
+
+* `main --verbose`
+* `main --verbose=1`
+* `main --verbose 1`
+
+View all supported arguments
+
+* `main --help`
+
