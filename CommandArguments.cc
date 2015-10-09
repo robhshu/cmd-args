@@ -4,24 +4,45 @@
 #include <iostream>
 #include <iomanip>
 
-bool CommandArguments::DefaultHelpCallback(const std::string &args) {
-  std::vector<CommandOption *>::iterator it(storage_.begin());
+bool CommandArguments::DefaultHelpCallback(const std::string &arg) {
+  const std::streamsize pad_len(2);
+
+  // Try to lookup help for the named argument
+
+  if (!arg.empty()) {
+    std::vector<CommandOption *>::iterator it(storage_.begin());
+
+    while (it != storage_.end()) {
+      if ((*it)->name_ == arg) {
+        std::streamsize len(static_cast<std::streamsize>((*it)->name_.size()));
+
+        std::cout << std::left << std::setw(pad_len + len) << (*it)->name_
+                  << (*it)->desc_ << std::endl;
+
+        return false;
+      }
+
+      ++it;
+    }
+  }
+
+  // Iterate over all argument names to find the longest (for formatting)
+
   std::streamsize len(0);
 
+  std::vector<CommandOption *>::iterator it(storage_.begin());
   while (it != storage_.end()) {
     len = std::max(len, static_cast<std::streamsize>((*it)->name_.size()));
     ++it;
   }
 
-  // Tabbed
-  len += 2;
+  // Dump all valid arguments (non-zero), with their description
 
   it = storage_.begin();
-
   while (it != storage_.end()) {
     if (!(*it)->name_.empty()) {
-      std::cout << std::left << std::setw(len) << (*it)->name_ << (*it)->desc_
-                << std::endl;
+      std::cout << std::left << std::setw(pad_len + len) << (*it)->name_
+                << (*it)->desc_ << std::endl;
     }
     ++it;
   }
@@ -219,9 +240,4 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
   }
 
   return true;
-}
-
-void CommandArguments::ShowUsage() {
-  const std::string no_arg;
-  DefaultHelpCallback(no_arg);
 }

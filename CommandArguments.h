@@ -27,7 +27,7 @@ private:
   CallbackStorageType *default_help;
   std::string error_arg_;
 
-  bool DefaultHelpCallback(const std::string &args);
+  bool DefaultHelpCallback(const std::string &arg);
 
   bool PeekArg(std::string &arg);
 
@@ -53,9 +53,9 @@ public:
 
   void Register(CommandOption &arg);
   bool ApplyArgumentList(int argc, char **argv);
-  void ShowUsage();
 
   const std::string &GetInvalid() const { return error_arg_; }
+  bool HasInvalid() const { return !GetInvalid().empty(); }
 };
 
 #endif

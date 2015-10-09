@@ -8,9 +8,7 @@ int main(int argc, char **argv) {
       Args.AddFlag("verbose", "Verbose console output", false));
 
   if (!Args.ApplyArgumentList(argc, argv)) {
-    if (Args.GetInvalid().empty()) {
-      Args.ShowUsage();
-    } else {
+    if (Args.HasInvalid()) {
       std::cout << "Unrecognised option \"" << Args.GetInvalid() << "\""
                 << std::endl;
     }
