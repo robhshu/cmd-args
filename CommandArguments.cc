@@ -166,10 +166,20 @@ bool CommandArguments::PeekArg(std::string &arg) {
   const char tack_char('-');
   std::string::size_type tack_pos(arg.find_first_not_of(tack_char));
 
-  // Only allow double-tacks for now (--arg)
+  // Allow double-tacks (--arg)
   if (tack_pos == 2) {
     arg = arg.substr(2);
     return true;
+  }
+
+  const char switch_char('/');
+
+  // Allow switch-style arguments (/arg)
+  if (!arg.empty()) {
+    if (arg[0] == switch_char) {
+      arg = arg.substr(1);
+      return true;
+    }
   }
 
   return false;
