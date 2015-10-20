@@ -3,19 +3,21 @@
 
 #include <string>
 
-class CommandOption {
+namespace cmdargs {
+class opt {
 protected:
-  friend class CommandArguments;
+  friend class manager;
 
   std::string name_;
   std::string desc_;
   bool required_;
 
 public:
-  CommandOption() : required_(true) {}
+  opt() : required_(true) {}
 
-  virtual ~CommandOption() {}
-  virtual bool Parse(const std::string &) { return false; }
+  virtual ~opt() {}
+  virtual bool parse(const std::string &) { return false; }
+};
 };
 
 #endif

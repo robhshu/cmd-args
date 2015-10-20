@@ -3,18 +3,19 @@
 
 #include "CommandOption.h"
 
-template <class T> class CommandOptionStorageBase : public CommandOption {
+namespace cmdargs {
+template <class T> class storagebase : public opt {
 public:
+  typedef typename T StorageType;
+
   T storage_;
 
-  CommandOptionStorageBase() : CommandOption() {}
+  storagebase() : opt() {}
+  storagebase(T default_val) : opt(), storage_(default_val) {}
+  virtual ~storagebase() {}
 
-  CommandOptionStorageBase(T default_val)
-      : CommandOption(), storage_(default_val) {}
-
-  virtual ~CommandOptionStorageBase() {}
-
-  const T &Get() const { return storage_; }
+  const T &get() const { return storage_; }
+};
 };
 
 #endif

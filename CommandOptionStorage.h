@@ -9,12 +9,14 @@
 #include <vector>
 #include <functional>
 
-class CommandOptionFlagStorage : public CommandOptionStorageBase<bool> {
-public:
-  CommandOptionFlagStorage(bool default_val)
-      : CommandOptionStorageBase(default_val) {}
+namespace cmdargs {
+typedef bool t_flag;
 
-  virtual bool Parse(const std::string &raw) {
+class flag : public storagebase<t_flag> {
+public:
+  flag(t_flag default_val) : storagebase(default_val) {}
+
+  virtual bool parse(const std::string &raw) {
     if (raw.empty()) {
       storage_ = true;
       return true;
@@ -25,52 +27,53 @@ public:
   }
 };
 
-class CommandOptionNumStorage : public CommandOptionStorageBase<long long> {
-public:
-  CommandOptionNumStorage(long long default_val)
-      : CommandOptionStorageBase(default_val) {}
+typedef long long t_num;
 
-  virtual bool Parse(const std::string &raw) {
+class num : public storagebase<t_num> {
+public:
+  num(t_num default_val) : storagebase(default_val) {}
+
+  virtual bool parse(const std::string &raw) {
     storage_ = std::strtoll(raw.c_str(), nullptr, 10);
     return true;
   }
 };
 
-class CommandOptionStringStorage
-    : public CommandOptionStorageBase<std::string> {
-public:
-  CommandOptionStringStorage(const std::string &default_val)
-      : CommandOptionStorageBase(default_val) {}
+typedef std::string t_str;
 
-  virtual bool Parse(const std::string &raw) {
+class str : public storagebase<t_str> {
+public:
+  str(const t_str &default_val) : storagebase(default_val) {}
+
+  virtual bool parse(const std::string &raw) {
     storage_ = raw;
     return true;
   }
 };
 
-class CommandOptionStringListStorage
-    : public CommandOptionStorageBase<std::vector<std::string>> {
+typedef std::vector<t_str> t_strlist;
+
+class strlist : public storagebase<t_strlist> {
 public:
-  virtual bool Parse(const std::string &raw) {
+  virtual bool parse(const std::string &raw) {
     storage_.push_back(raw);
     return true;
   }
 };
 
-class CommandOptionCallbackStorage
-    : public CommandOptionStorageBase<
-          std::function<bool(const std::string &)>> {
-public:
-  CommandOptionCallbackStorage(
-      std::function<bool(const std::string &)> function_ptr)
-      : CommandOptionStorageBase(function_ptr) {}
+typedef std::function<bool(const std::string &)> t_callback;
 
-  virtual bool Parse(const std::string &raw) {
+class callback : public storagebase<t_callback> {
+public:
+  callback(t_callback func_ptr) : storagebase(func_ptr) {}
+
+  virtual bool parse(const std::string &raw) {
     if (storage_) {
       return storage_(raw);
     }
     return true;
   }
+};
 };
 
 #endif

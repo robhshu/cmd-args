@@ -8,47 +8,66 @@
 #include <string>
 #include <functional>
 
-class CommandArguments {
-  typedef std::vector<CommandOption *> StorageType;
+namespace cmdargs {
+class manager {
+  typedef std::vector<opt *> StorageType;
   typedef StorageType::const_iterator StorageTypeCIt;
 
   StorageType storage_;
 
-  CommandOptionStringListStorage *trailing_args_;
-  CommandOptionCallbackStorage *default_help;
+  strlist *trailing_args_;
+  callback *default_help;
+
   std::string error_arg_;
 
   bool DefaultHelpCallback(const std::string &arg);
 
   bool PeekArg(std::string &arg);
+  void Register(opt &arg);
 
 public:
-  CommandArguments();
-  ~CommandArguments();
+  manager();
 
   bool IsNameTaken(const std::string &name) const;
 
-  CommandOptionStringStorage *AddParam(const std::string &name,
-                                       const std::string &desc,
-                                       const std::string &default_value);
-  CommandOptionNumStorage *AddNumber(const std::string &name,
-                                     const std::string &desc,
-                                     long long default_value);
-  CommandOptionFlagStorage *
-  AddFlag(const std::string &name, const std::string &desc, bool default_value);
-  CommandOptionCallbackStorage *
-  AddCallback(const std::string &name, const std::string &desc,
-              std::function<bool(const std::string &)> callback);
-  CommandOptionStringListStorage *AddParamList(const std::string &name,
-                                               const std::string &desc);
+  template <typename T, typename TStorage = T::StorageType>
+  T *add(const std::string &name, const std::string &desc,
+         const TStorage &default_value) {
+    T *val(nullptr);
 
-  const std::vector<std::string> &Get() const;
+    if (!IsNameTaken(name)) {
+      val = new T(default_value);
+      val->name_ = name;
+      val->desc_ = desc;
 
-  void Register(CommandOption &arg);
-  bool ApplyArgumentList(int argc, char **argv);
+      Register(*val);
+    }
 
-  const std::string &GetInvalid() const { return error_arg_; }
-  bool HasInvalid() const { return !GetInvalid().empty(); }
+    return val;
+  }
+
+  template <typename T>
+  T *addlist(const std::string &name, const std::string &desc) {
+    T *val(nullptr);
+
+    if (!IsNameTaken(name)) {
+      val = new T();
+      val->name_ = name;
+      val->desc_ = desc;
+
+      Register(*val);
+    }
+
+    return val;
+  }
+
+  const t_strlist &get() const;
+
+  bool run(int argc, char **argv);
+
+  const std::string &last_invalid() const { return error_arg_; }
+  bool has_invalid() const { return last_invalid().empty(); }
 };
+}
 
 #endif

@@ -4,7 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
-bool CommandArguments::DefaultHelpCallback(const std::string &arg) {
+namespace cmdargs {
+bool manager::DefaultHelpCallback(const std::string &arg) {
   const std::streamsize pad_len(2);
 
   // Try to lookup help for the named argument
@@ -50,27 +51,22 @@ bool CommandArguments::DefaultHelpCallback(const std::string &arg) {
   return false;
 }
 
-CommandArguments::CommandArguments()
-    : trailing_args_(nullptr), default_help(nullptr) {
-  trailing_args_ = AddParamList("", "List of trailing parameters");
-  default_help = AddCallback("help", "List all commands",
-                             std::bind(&CommandArguments::DefaultHelpCallback,
-                                       this, std::placeholders::_1));
+manager::manager() : trailing_args_(nullptr), default_help(nullptr) {
+  trailing_args_ = addlist<strlist>("", "List of trailing parameters");
+  default_help = add<callback>(
+      "help", "List all commands",
+      std::bind(&manager::DefaultHelpCallback, this, std::placeholders::_1));
 }
 
-CommandArguments::~CommandArguments() {}
-
-void CommandArguments::Register(CommandOption &arg) {
+void manager::Register(opt &arg) {
   if (!IsNameTaken(arg.name_)) {
     storage_.push_back(&arg);
   }
 }
 
-const std::vector<std::string> &CommandArguments::Get() const {
-  return trailing_args_->Get();
-}
+const t_strlist &manager::get() const { return trailing_args_->get(); }
 
-bool CommandArguments::IsNameTaken(const std::string &name) const {
+bool manager::IsNameTaken(const std::string &name) const {
   StorageTypeCIt cIt(storage_.begin());
   while (cIt != storage_.end()) {
     if ((*cIt)->name_ == name) {
@@ -82,87 +78,7 @@ bool CommandArguments::IsNameTaken(const std::string &name) const {
   return false;
 }
 
-CommandOptionStringStorage *
-CommandArguments::AddParam(const std::string &name, const std::string &desc,
-                           const std::string &default_value) {
-  CommandOptionStringStorage *val(nullptr);
-
-  if (!IsNameTaken(name)) {
-    val = new CommandOptionStringStorage(default_value);
-    val->name_ = name;
-    val->desc_ = desc;
-
-    Register(*val);
-  }
-
-  return val;
-}
-
-CommandOptionNumStorage *CommandArguments::AddNumber(const std::string &name,
-                                                     const std::string &desc,
-                                                     long long default_value) {
-  CommandOptionNumStorage *val(nullptr);
-
-  if (!IsNameTaken(name)) {
-    val = new CommandOptionNumStorage(default_value);
-    val->name_ = name;
-    val->desc_ = desc;
-
-    Register(*val);
-  }
-
-  return val;
-}
-
-CommandOptionFlagStorage *CommandArguments::AddFlag(const std::string &name,
-                                                    const std::string &desc,
-                                                    bool default_value) {
-  CommandOptionFlagStorage *val(nullptr);
-
-  if (!IsNameTaken(name)) {
-    val = new CommandOptionFlagStorage(default_value);
-    val->name_ = name;
-    val->desc_ = desc;
-
-    Register(*val);
-  }
-
-  return val;
-}
-
-CommandOptionCallbackStorage *CommandArguments::AddCallback(
-    const std::string &name, const std::string &desc,
-    std::function<bool(const std::string &)> callback) {
-  CommandOptionCallbackStorage *val(nullptr);
-
-  if (!IsNameTaken(name)) {
-    val = new CommandOptionCallbackStorage(callback);
-    val->name_ = name;
-    val->desc_ = desc;
-
-    Register(*val);
-  }
-
-  return val;
-}
-
-CommandOptionStringListStorage *
-CommandArguments::AddParamList(const std::string &name,
-                               const std::string &desc) {
-  CommandOptionStringListStorage *val(nullptr);
-
-  if (!IsNameTaken(name)) {
-    val = new CommandOptionStringListStorage();
-    val->name_ = name;
-    val->desc_ = desc;
-
-    Register(*val);
-  }
-
-  return val;
-}
-
-bool CommandArguments::PeekArg(std::string &arg) {
+bool manager::PeekArg(std::string &arg) {
   const char tack_char('-');
   std::string::size_type tack_pos(arg.find_first_not_of(tack_char));
 
@@ -185,7 +101,7 @@ bool CommandArguments::PeekArg(std::string &arg) {
   return false;
 }
 
-bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
+bool manager::run(int argc, char **argv) {
   // todo: build list of required arguments met
   int arg = 1;
 
@@ -223,10 +139,10 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
         }
       }
 
-      std::vector<CommandOption *>::iterator it(storage_.begin());
+      std::vector<opt *>::iterator it(storage_.begin());
       while (it != storage_.end()) {
         if ((*it)->name_ == name) {
-          if (!(*it)->Parse(value)) {
+          if (!(*it)->parse(value)) {
             return false;
           }
           break;
@@ -243,11 +159,12 @@ bool CommandArguments::ApplyArgumentList(int argc, char **argv) {
 
     } else {
       // Adding unregistered item
-      trailing_args_->Parse(arg_str);
+      trailing_args_->parse(arg_str);
     }
 
     ++arg;
   }
 
   return true;
+}
 }
