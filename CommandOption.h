@@ -15,7 +15,7 @@ public:
   CommandOption() : required_(true) {}
 
   virtual ~CommandOption() {}
-  virtual bool Parse(const std::string &raw) { return false; }
+  virtual bool Parse(const std::string &) { return false; }
 };
 
 #endif

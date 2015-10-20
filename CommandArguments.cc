@@ -10,19 +10,19 @@ bool CommandArguments::DefaultHelpCallback(const std::string &arg) {
   // Try to lookup help for the named argument
 
   if (!arg.empty()) {
-    std::vector<CommandOption *>::iterator it(storage_.begin());
+    StorageTypeCIt cIt(storage_.begin());
 
-    while (it != storage_.end()) {
-      if ((*it)->name_ == arg) {
-        std::streamsize len(static_cast<std::streamsize>((*it)->name_.size()));
+    while (cIt != storage_.end()) {
+      if ((*cIt)->name_ == arg) {
+        std::streamsize len(static_cast<std::streamsize>((*cIt)->name_.size()));
 
-        std::cout << std::left << std::setw(pad_len + len) << (*it)->name_
-                  << (*it)->desc_ << std::endl;
+        std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name_
+                  << (*cIt)->desc_ << std::endl;
 
         return false;
       }
 
-      ++it;
+      ++cIt;
     }
   }
 
@@ -30,21 +30,21 @@ bool CommandArguments::DefaultHelpCallback(const std::string &arg) {
 
   std::streamsize len(0);
 
-  std::vector<CommandOption *>::iterator it(storage_.begin());
-  while (it != storage_.end()) {
-    len = std::max(len, static_cast<std::streamsize>((*it)->name_.size()));
-    ++it;
+  StorageTypeCIt cIt(storage_.begin());
+  while (cIt != storage_.end()) {
+    len = std::max(len, static_cast<std::streamsize>((*cIt)->name_.size()));
+    ++cIt;
   }
 
   // Dump all valid arguments (non-zero), with their description
 
-  it = storage_.begin();
-  while (it != storage_.end()) {
-    if (!(*it)->name_.empty()) {
-      std::cout << std::left << std::setw(pad_len + len) << (*it)->name_
-                << (*it)->desc_ << std::endl;
+  cIt = storage_.begin();
+  while (cIt != storage_.end()) {
+    if (!(*cIt)->name_.empty()) {
+      std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name_
+                << (*cIt)->desc_ << std::endl;
     }
-    ++it;
+    ++cIt;
   }
 
   return false;
@@ -82,13 +82,13 @@ bool CommandArguments::IsNameTaken(const std::string &name) const {
   return false;
 }
 
-CommandArguments::StringStorageType *
+CommandOptionStringStorage *
 CommandArguments::AddParam(const std::string &name, const std::string &desc,
                            const std::string &default_value) {
-  CommandArguments::StringStorageType *val(nullptr);
+  CommandOptionStringStorage *val(nullptr);
 
   if (!IsNameTaken(name)) {
-    val = new CommandArguments::StringStorageType(default_value);
+    val = new CommandOptionStringStorage(default_value);
     val->name_ = name;
     val->desc_ = desc;
 
@@ -98,13 +98,13 @@ CommandArguments::AddParam(const std::string &name, const std::string &desc,
   return val;
 }
 
-CommandArguments::NumStorageType *
-CommandArguments::AddNumber(const std::string &name, const std::string &desc,
-                            long long default_value) {
-  CommandArguments::NumStorageType *val(nullptr);
+CommandOptionNumStorage *CommandArguments::AddNumber(const std::string &name,
+                                                     const std::string &desc,
+                                                     long long default_value) {
+  CommandOptionNumStorage *val(nullptr);
 
   if (!IsNameTaken(name)) {
-    val = new CommandArguments::NumStorageType(default_value);
+    val = new CommandOptionNumStorage(default_value);
     val->name_ = name;
     val->desc_ = desc;
 
@@ -114,13 +114,13 @@ CommandArguments::AddNumber(const std::string &name, const std::string &desc,
   return val;
 }
 
-CommandArguments::FlagStorageType *
-CommandArguments::AddFlag(const std::string &name, const std::string &desc,
-                          bool default_value) {
-  CommandArguments::FlagStorageType *val(nullptr);
+CommandOptionFlagStorage *CommandArguments::AddFlag(const std::string &name,
+                                                    const std::string &desc,
+                                                    bool default_value) {
+  CommandOptionFlagStorage *val(nullptr);
 
   if (!IsNameTaken(name)) {
-    val = new CommandArguments::FlagStorageType(default_value);
+    val = new CommandOptionFlagStorage(default_value);
     val->name_ = name;
     val->desc_ = desc;
 
@@ -130,13 +130,13 @@ CommandArguments::AddFlag(const std::string &name, const std::string &desc,
   return val;
 }
 
-CommandArguments::CallbackStorageType *CommandArguments::AddCallback(
+CommandOptionCallbackStorage *CommandArguments::AddCallback(
     const std::string &name, const std::string &desc,
     std::function<bool(const std::string &)> callback) {
-  CommandArguments::CallbackStorageType *val(nullptr);
+  CommandOptionCallbackStorage *val(nullptr);
 
   if (!IsNameTaken(name)) {
-    val = new CommandArguments::CallbackStorageType(callback);
+    val = new CommandOptionCallbackStorage(callback);
     val->name_ = name;
     val->desc_ = desc;
 
@@ -146,13 +146,13 @@ CommandArguments::CallbackStorageType *CommandArguments::AddCallback(
   return val;
 }
 
-CommandArguments::StringListStorageType *
+CommandOptionStringListStorage *
 CommandArguments::AddParamList(const std::string &name,
                                const std::string &desc) {
-  CommandArguments::StringListStorageType *val(nullptr);
+  CommandOptionStringListStorage *val(nullptr);
 
   if (!IsNameTaken(name)) {
-    val = new CommandArguments::StringListStorageType();
+    val = new CommandOptionStringListStorage();
     val->name_ = name;
     val->desc_ = desc;
 
@@ -166,10 +166,20 @@ bool CommandArguments::PeekArg(std::string &arg) {
   const char tack_char('-');
   std::string::size_type tack_pos(arg.find_first_not_of(tack_char));
 
-  // Only allow double-tacks for now (--arg)
+  // Allow double-tacks (--arg)
   if (tack_pos == 2) {
     arg = arg.substr(2);
     return true;
+  }
+
+  const char switch_char('/');
+
+  // Allow switch-style arguments (/arg)
+  if (!arg.empty()) {
+    if (arg[0] == switch_char) {
+      arg = arg.substr(1);
+      return true;
+    }
   }
 
   return false;

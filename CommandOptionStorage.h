@@ -9,19 +9,9 @@
 #include <vector>
 #include <functional>
 
-template <class T>
-class CommandOptionStorage : public CommandOptionStorageBase<T> {
+class CommandOptionFlagStorage : public CommandOptionStorageBase<bool> {
 public:
-  CommandOptionStorage() : CommandOptionStorageBase<T>() {}
-
-  CommandOptionStorage(T default_val)
-      : CommandOptionStorageBase<T>(default_val) {}
-};
-
-template <>
-class CommandOptionStorage<bool> : public CommandOptionStorageBase<bool> {
-public:
-  CommandOptionStorage(bool default_val)
+  CommandOptionFlagStorage(bool default_val)
       : CommandOptionStorageBase(default_val) {}
 
   virtual bool Parse(const std::string &raw) {
@@ -35,11 +25,9 @@ public:
   }
 };
 
-template <>
-class CommandOptionStorage<long long>
-    : public CommandOptionStorageBase<long long> {
+class CommandOptionNumStorage : public CommandOptionStorageBase<long long> {
 public:
-  CommandOptionStorage(long long default_val)
+  CommandOptionNumStorage(long long default_val)
       : CommandOptionStorageBase(default_val) {}
 
   virtual bool Parse(const std::string &raw) {
@@ -48,11 +36,10 @@ public:
   }
 };
 
-template <>
-class CommandOptionStorage<std::string>
+class CommandOptionStringStorage
     : public CommandOptionStorageBase<std::string> {
 public:
-  CommandOptionStorage(const std::string &default_val)
+  CommandOptionStringStorage(const std::string &default_val)
       : CommandOptionStorageBase(default_val) {}
 
   virtual bool Parse(const std::string &raw) {
@@ -61,8 +48,7 @@ public:
   }
 };
 
-template <>
-class CommandOptionStorage<std::vector<std::string>>
+class CommandOptionStringListStorage
     : public CommandOptionStorageBase<std::vector<std::string>> {
 public:
   virtual bool Parse(const std::string &raw) {
@@ -71,12 +57,12 @@ public:
   }
 };
 
-template <>
-class CommandOptionStorage<std::function<bool(const std::string &)>>
+class CommandOptionCallbackStorage
     : public CommandOptionStorageBase<
           std::function<bool(const std::string &)>> {
 public:
-  CommandOptionStorage(std::function<bool(const std::string &)> function_ptr)
+  CommandOptionCallbackStorage(
+      std::function<bool(const std::string &)> function_ptr)
       : CommandOptionStorageBase(function_ptr) {}
 
   virtual bool Parse(const std::string &raw) {
