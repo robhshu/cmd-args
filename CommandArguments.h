@@ -12,19 +12,10 @@ class CommandArguments {
   typedef std::vector<CommandOption *> StorageType;
   typedef StorageType::const_iterator StorageTypeCIt;
 
-public:
-  typedef CommandOptionStorage<std::string> StringStorageType;
-  typedef CommandOptionStorage<bool> FlagStorageType;
-  typedef CommandOptionStorage<long long> NumStorageType;
-  typedef CommandOptionStorage<std::function<bool(const std::string &)>>
-      CallbackStorageType;
-
-  typedef CommandOptionStorage<std::vector<std::string>> StringListStorageType;
-
-private:
   StorageType storage_;
-  StringListStorageType *trailing_args_;
-  CallbackStorageType *default_help;
+
+  CommandOptionStringListStorage *trailing_args_;
+  CommandOptionCallbackStorage *default_help;
   std::string error_arg_;
 
   bool DefaultHelpCallback(const std::string &arg);
@@ -37,17 +28,19 @@ public:
 
   bool IsNameTaken(const std::string &name) const;
 
-  StringStorageType *AddParam(const std::string &name, const std::string &desc,
-                              const std::string &default_value);
-  NumStorageType *AddNumber(const std::string &name, const std::string &desc,
-                            long long default_value);
-  FlagStorageType *AddFlag(const std::string &name, const std::string &desc,
-                           bool default_value);
-  CallbackStorageType *
+  CommandOptionStringStorage *AddParam(const std::string &name,
+                                       const std::string &desc,
+                                       const std::string &default_value);
+  CommandOptionNumStorage *AddNumber(const std::string &name,
+                                     const std::string &desc,
+                                     long long default_value);
+  CommandOptionFlagStorage *
+  AddFlag(const std::string &name, const std::string &desc, bool default_value);
+  CommandOptionCallbackStorage *
   AddCallback(const std::string &name, const std::string &desc,
               std::function<bool(const std::string &)> callback);
-  StringListStorageType *AddParamList(const std::string &name,
-                                      const std::string &desc);
+  CommandOptionStringListStorage *AddParamList(const std::string &name,
+                                               const std::string &desc);
 
   const std::vector<std::string> &Get() const;
 
