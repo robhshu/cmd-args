@@ -24,7 +24,7 @@ Modern, lightweight command-line argument helper written in C++.
 int main(int argc, char **argv) {
   CommandArguments Args;
 
-  CommandArguments::FlagStorageType *flagVerbose(
+  CommandOptionFlagStorage *flagVerbose(
       Args.AddFlag("verbose", "Verbose console output", false));
 
   if (!Args.ApplyArgumentList(argc, argv)) {
