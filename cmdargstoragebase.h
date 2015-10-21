@@ -1,7 +1,7 @@
 #ifndef COMMAND_OPTION_STORAGE_BASE_H_
 #define COMMAND_OPTION_STORAGE_BASE_H_
 
-#include "CommandOption.h"
+#include "cmdargopt.h"
 
 namespace cmdargs {
 template <class T> class storagebase : public opt {

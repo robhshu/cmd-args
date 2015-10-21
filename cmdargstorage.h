@@ -1,7 +1,7 @@
 #ifndef COMMAND_OPTION_STORAGE_H_
 #define COMMAND_OPTION_STORAGE_H_
 
-#include "CommandOptionStorageBase.h"
+#include "cmdargstoragebase.h"
 
 #include <cstdlib>
 

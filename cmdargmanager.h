@@ -1,8 +1,8 @@
 #ifndef COMMAND_ARGUMENTS_H_
 #define COMMAND_ARGUMENTS_H_
 
-#include "CommandOption.h"
-#include "CommandOptionStorage.h"
+#include "cmdargopt.h"
+#include "cmdargstorage.h"
 
 #include <vector>
 #include <string>
