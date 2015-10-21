@@ -11,14 +11,15 @@ bool manager::DefaultHelpCallback(const std::string &arg) {
   // Try to lookup help for the named argument
 
   if (!arg.empty()) {
-    StorageTypeCIt cIt(storage_.begin());
+    t_optlist_cit cIt(storage_.begin());
 
     while (cIt != storage_.end()) {
-      if ((*cIt)->name_ == arg) {
-        std::streamsize len(static_cast<std::streamsize>((*cIt)->name_.size()));
+      if ((*cIt)->name() == arg) {
+        std::streamsize len(
+            static_cast<std::streamsize>((*cIt)->name().size()));
 
-        std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name_
-                  << (*cIt)->desc_ << std::endl;
+        std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name()
+                  << (*cIt)->desc() << std::endl;
 
         return false;
       }
@@ -31,9 +32,9 @@ bool manager::DefaultHelpCallback(const std::string &arg) {
 
   std::streamsize len(0);
 
-  StorageTypeCIt cIt(storage_.begin());
+  t_optlist_cit cIt(storage_.begin());
   while (cIt != storage_.end()) {
-    len = std::max(len, static_cast<std::streamsize>((*cIt)->name_.size()));
+    len = std::max(len, static_cast<std::streamsize>((*cIt)->name().size()));
     ++cIt;
   }
 
@@ -41,9 +42,9 @@ bool manager::DefaultHelpCallback(const std::string &arg) {
 
   cIt = storage_.begin();
   while (cIt != storage_.end()) {
-    if (!(*cIt)->name_.empty()) {
-      std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name_
-                << (*cIt)->desc_ << std::endl;
+    if (!(*cIt)->name().empty()) {
+      std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name()
+                << (*cIt)->desc() << std::endl;
     }
     ++cIt;
   }
@@ -59,23 +60,23 @@ manager::manager() : trailing_args_(nullptr), default_help(nullptr) {
 }
 
 void manager::Register(opt &arg) {
-  if (!IsNameTaken(arg.name_)) {
+  if (is_name_free(arg.name_)) {
     storage_.push_back(&arg);
   }
 }
 
-const t_strlist &manager::get() const { return trailing_args_->get(); }
+const t_strlist &manager::get() const { return trailing_args_->value(); }
 
-bool manager::IsNameTaken(const std::string &name) const {
-  StorageTypeCIt cIt(storage_.begin());
+bool manager::is_name_free(const std::string &name) const {
+  t_optlist_cit cIt(storage_.begin());
   while (cIt != storage_.end()) {
     if ((*cIt)->name_ == name) {
-      return true;
+      return false;
     }
     ++cIt;
   }
 
-  return false;
+  return true;
 }
 
 bool manager::PeekArg(std::string &arg) {

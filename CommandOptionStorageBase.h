@@ -14,7 +14,7 @@ public:
   storagebase(T default_val) : opt(), storage_(default_val) {}
   virtual ~storagebase() {}
 
-  const T &get() const { return storage_; }
+  const T &value() const { return storage_; }
 };
 };
 

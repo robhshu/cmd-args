@@ -10,10 +10,10 @@
 
 namespace cmdargs {
 class manager {
-  typedef std::vector<opt *> StorageType;
-  typedef StorageType::const_iterator StorageTypeCIt;
+  typedef std::vector<opt *> t_optlist;
+  typedef t_optlist::const_iterator t_optlist_cit;
 
-  StorageType storage_;
+  t_optlist storage_;
 
   strlist *trailing_args_;
   callback *default_help;
@@ -28,14 +28,14 @@ class manager {
 public:
   manager();
 
-  bool IsNameTaken(const std::string &name) const;
+  bool is_name_free(const std::string &name) const;
 
   template <typename T, typename TStorage = T::StorageType>
   T *add(const std::string &name, const std::string &desc,
          const TStorage &default_value) {
     T *val(nullptr);
 
-    if (!IsNameTaken(name)) {
+    if (is_name_free(name)) {
       val = new T(default_value);
       val->name_ = name;
       val->desc_ = desc;
@@ -50,7 +50,7 @@ public:
   T *addlist(const std::string &name, const std::string &desc) {
     T *val(nullptr);
 
-    if (!IsNameTaken(name)) {
+    if (is_name_free(name)) {
       val = new T();
       val->name_ = name;
       val->desc_ = desc;

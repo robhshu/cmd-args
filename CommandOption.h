@@ -17,6 +17,9 @@ public:
 
   virtual ~opt() {}
   virtual bool parse(const std::string &) { return false; }
+
+  const std::string &name() const { return name_; }
+  const std::string &desc() const { return desc_; }
 };
 };
 
