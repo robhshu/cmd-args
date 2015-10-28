@@ -3,9 +3,10 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <tuple>
 
 namespace cmdargs {
-bool manager::DefaultHelpCallback(const std::string &arg) {
+bool manager::help_callback(const std::string &arg) {
   const std::streamsize pad_len(2);
 
   // Try to lookup help for the named argument
@@ -52,22 +53,35 @@ bool manager::DefaultHelpCallback(const std::string &arg) {
   return false;
 }
 
-manager::manager() : trailing_args_(nullptr), default_help(nullptr) {
-  trailing_args_ = addlist<strlist>("", "List of trailing parameters");
-  default_help = add<callback>(
-      "help", "List all commands",
-      std::bind(&manager::DefaultHelpCallback, this, std::placeholders::_1));
+manager::manager() {
+
+  addcb("help", std::bind(&manager::help_callback, this, std::placeholders::_1),
+        false);
 }
 
-void manager::Register(opt &arg) {
-  if (is_name_free(arg.name_)) {
-    storage_.push_back(&arg);
+manager::~manager() {
+  t_optlist_cit cIt(storage_.begin());
+  while (cIt != storage_.end()) {
+    delete *cIt;
+    ++cIt;
   }
+
+  storage_.clear();
 }
 
-const t_strlist &manager::get() const { return trailing_args_->value(); }
+opt *manager::register_arg(opt *arg) {
+  if (arg != nullptr) {
+    storage_.push_back(arg);
+  }
+
+  return arg;
+}
 
 bool manager::is_name_free(const std::string &name) const {
+  if (name.empty()) {
+    return false;
+  }
+
   t_optlist_cit cIt(storage_.begin());
   while (cIt != storage_.end()) {
     if ((*cIt)->name_ == name) {
@@ -79,7 +93,7 @@ bool manager::is_name_free(const std::string &name) const {
   return true;
 }
 
-bool manager::PeekArg(std::string &arg) {
+bool manager::peek_arg(std::string &arg) {
   const char tack_char('-');
   std::string::size_type tack_pos(arg.find_first_not_of(tack_char));
 
@@ -102,20 +116,32 @@ bool manager::PeekArg(std::string &arg) {
   return false;
 }
 
+void manager::addcb(const std::string &name, t_callback method, bool required) {
+  opt *val(register_arg(new storage<t_callback>(method)));
+
+  if (is_name_free(name)) {
+    val->name_ = name;
+    val->desc_ = "";
+    val->required_ = required;
+  }
+}
+
 bool manager::run(int argc, char **argv) {
-  // todo: build list of required arguments met
-  int arg = 1;
+
+  app_name_ = std::string(argv[0]);
 
   error_arg_.clear();
-  trailing_args_->storage_.clear();
+  trailing_args_.clear();
 
-  // todo: sort arguments by name
+  typedef std::tuple<t_optlist_cit, std::string> ArgList;
+  std::vector<ArgList> final_args;
 
+  int arg(1);
   while (arg < argc) {
     // Convert to string
     std::string arg_str(argv[arg]);
 
-    if (PeekArg(arg_str)) {
+    if (peek_arg(arg_str)) {
       const char val_char('=');
       std::string::size_type split_pos(arg_str.find_first_of(val_char, 1));
 
@@ -133,19 +159,19 @@ bool manager::run(int argc, char **argv) {
         if (arg + 1 < argc) {
           std::string val_str(argv[arg + 1]);
 
-          if (!PeekArg(val_str)) {
+          if (!peek_arg(val_str)) {
             ++arg;
             value = val_str;
           }
         }
       }
 
-      std::vector<opt *>::iterator it(storage_.begin());
+      t_optlist_cit it(storage_.begin());
       while (it != storage_.end()) {
         if ((*it)->name_ == name) {
-          if (!(*it)->parse(value)) {
-            return false;
-          }
+
+          final_args.push_back(std::make_tuple(it, value));
+
           break;
         }
 
@@ -159,13 +185,29 @@ bool manager::run(int argc, char **argv) {
       }
 
     } else {
-      // Adding unregistered item
-      trailing_args_->parse(arg_str);
+      // Unregistered commands are retained
+      trailing_args_.push_back(arg_str);
     }
 
     ++arg;
   }
 
-  return true;
+  if (has_invalid()) {
+    return false;
+  } else {
+
+    std::vector<ArgList>::const_iterator argIt = final_args.begin();
+    while (argIt != final_args.end()) {
+      t_optlist_cit item;
+      std::string opt_arg;
+
+      std::tie(item, opt_arg) = *argIt;
+      (*item)->parse(opt_arg);
+
+      ++argIt;
+    }
+
+    return true;
+  }
 }
 }

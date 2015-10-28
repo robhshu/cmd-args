@@ -1,5 +1,5 @@
-#ifndef COMMAND_OPTION_H_
-#define COMMAND_OPTION_H_
+#ifndef CMDARG_OPT_H_
+#define CMDARG_OPT_H_
 
 #include <string>
 

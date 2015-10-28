@@ -1,13 +1,11 @@
-#ifndef COMMAND_OPTION_STORAGE_BASE_H_
-#define COMMAND_OPTION_STORAGE_BASE_H_
+#ifndef CMDARG_STORAGEBASE_H_
+#define CMDARG_STORAGEBASE_H_
 
 #include "cmdargopt.h"
 
 namespace cmdargs {
 template <class T> class storagebase : public opt {
 public:
-  typedef typename T StorageType;
-
   T storage_;
 
   storagebase() : opt() {}
