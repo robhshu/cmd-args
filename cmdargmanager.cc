@@ -55,8 +55,9 @@ bool manager::help_callback(const std::string &arg) {
 
 manager::manager() {
 
-  addcb("help", std::bind(&manager::help_callback, this, std::placeholders::_1),
-        false);
+  add_cb("help",
+         std::bind(&manager::help_callback, this, std::placeholders::_1),
+         false);
 }
 
 manager::~manager() {
@@ -116,7 +117,8 @@ bool manager::peek_arg(std::string &arg) {
   return false;
 }
 
-void manager::addcb(const std::string &name, t_callback method, bool required) {
+void manager::add_cb(const std::string &name, t_callback method,
+                     bool required) {
   opt *val(register_arg(new storage<t_callback>(method)));
 
   if (is_name_free(name)) {

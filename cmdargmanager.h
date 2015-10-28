@@ -59,7 +59,7 @@ public:
     return &reinterpret_cast<multistorage<T> *>(val)->storage_;
   }
 
-  void addcb(const std::string &name, t_callback method, bool required = true);
+  void add_cb(const std::string &name, t_callback method, bool required = true);
 
   bool run(int argc, char **argv);
 
