@@ -26,6 +26,8 @@ class manager {
   bool peek_arg(std::string &arg);
   opt *register_arg(opt *arg);
 
+  void set_app_name(const std::string &name);
+
   bool is_name_free(const std::string &name) const;
 
 public:

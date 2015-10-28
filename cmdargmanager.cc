@@ -128,9 +128,20 @@ void manager::add_cb(const std::string &name, t_callback method,
   }
 }
 
+void manager::set_app_name(const std::string &name) {
+  const char path_sep_char('\\');
+  std::string::size_type path_sep_pos(name.find_last_of(path_sep_char));
+
+  if (path_sep_pos != name.npos) {
+    app_name_ = name.substr(path_sep_pos + 1);
+  } else {
+    app_name_ = name;
+  }
+}
+
 bool manager::run(int argc, char **argv) {
 
-  app_name_ = std::string(argv[0]);
+  set_app_name(std::string(argv[0]));
 
   error_arg_.clear();
   trailing_args_.clear();
