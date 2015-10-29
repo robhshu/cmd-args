@@ -33,5 +33,5 @@ main.o : main.cc cmdargmanager.cc
 cmdargmanager.o : cmdargmanager.cc cmdargmanager.h
 	$(CC) $(CFLAGS) cmdargmanager.cc
 
-cndargparser.o : cmdargparser.cc cmdargparser.h
+cmdargparser.o : cmdargparser.cc cmdargparser.h
 	$(CC) $(CFLAGS) cmdargparser.cc
