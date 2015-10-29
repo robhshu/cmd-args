@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <tuple>
 
+#include "cmdargstorage.h"
+
 namespace cmdargs {
 bool manager::help_callback(const std::string &arg) {
   const std::streamsize pad_len(2);
@@ -53,7 +55,11 @@ bool manager::help_callback(const std::string &arg) {
   return false;
 }
 
-manager::manager() {
+manager::manager(int argc, char **argv) : argc_(argc), argv_(argv) {
+
+  if (argc_ > 0 && argv_ != nullptr) {
+    set_app_name(std::string(argv_[0]));
+  }
 
   add_cb("help",
          std::bind(&manager::help_callback, this, std::placeholders::_1),
@@ -139,9 +145,7 @@ void manager::set_app_name(const std::string &name) {
   }
 }
 
-bool manager::run(int argc, char **argv) {
-
-  set_app_name(std::string(argv[0]));
+bool manager::run() {
 
   error_arg_.clear();
   trailing_args_.clear();
@@ -150,9 +154,9 @@ bool manager::run(int argc, char **argv) {
   std::vector<ArgList> final_args;
 
   int arg(1);
-  while (arg < argc) {
+  while (arg < argc_) {
     // Convert to string
-    std::string arg_str(argv[arg]);
+    std::string arg_str(argv_[arg]);
 
     if (peek_arg(arg_str)) {
       const char val_char('=');
@@ -169,8 +173,8 @@ bool manager::run(int argc, char **argv) {
 
         // Try to determine the value using the next argument
 
-        if (arg + 1 < argc) {
-          std::string val_str(argv[arg + 1]);
+        if (arg + 1 < argc_) {
+          std::string val_str(argv_[arg + 1]);
 
           if (!peek_arg(val_str)) {
             ++arg;

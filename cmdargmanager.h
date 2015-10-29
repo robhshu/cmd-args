@@ -14,6 +14,9 @@ class manager {
   typedef std::vector<opt *> t_optlist;
   typedef t_optlist::const_iterator t_optlist_cit;
 
+  int argc_;
+  char **argv_;
+
   t_optlist storage_;
 
   std::vector<t_str> trailing_args_;
@@ -31,7 +34,7 @@ class manager {
   bool is_name_free(const std::string &name) const;
 
 public:
-  manager();
+  manager(int argc, char **argv);
   ~manager();
 
   template <typename T>
@@ -63,7 +66,7 @@ public:
 
   void add_cb(const std::string &name, t_callback method, bool required = true);
 
-  bool run(int argc, char **argv);
+  bool run();
 
   const std::vector<t_str> get_commands() const { return trailing_args_; }
 
