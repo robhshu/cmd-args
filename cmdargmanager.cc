@@ -15,12 +15,12 @@ bool manager::help_callback(const std::string &arg) {
     t_optlist_cit cIt(storage_.begin());
 
     while (cIt != storage_.end()) {
-      if ((*cIt)->name() == arg) {
+      if ((*cIt)->get_name() == arg) {
         std::streamsize len(
-            static_cast<std::streamsize>((*cIt)->name().size()));
+            static_cast<std::streamsize>((*cIt)->get_name().size()));
 
-        std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name()
-                  << (*cIt)->desc() << std::endl;
+        std::cout << std::left << std::setw(pad_len + len) << (*cIt)->get_name()
+                  << (*cIt)->get_desc() << std::endl;
 
         return false;
       }
@@ -35,7 +35,8 @@ bool manager::help_callback(const std::string &arg) {
 
   t_optlist_cit cIt(storage_.begin());
   while (cIt != storage_.end()) {
-    len = std::max(len, static_cast<std::streamsize>((*cIt)->name().size()));
+    len =
+        std::max(len, static_cast<std::streamsize>((*cIt)->get_name().size()));
     ++cIt;
   }
 
@@ -43,13 +44,12 @@ bool manager::help_callback(const std::string &arg) {
 
   cIt = storage_.begin();
   while (cIt != storage_.end()) {
-    if (!(*cIt)->name().empty()) {
-      std::cout << std::left << std::setw(pad_len + len) << (*cIt)->name()
-                << (*cIt)->desc() << std::endl;
-    }
+    std::cout << std::left << std::setw(pad_len + len) << (*cIt)->get_name()
+              << (*cIt)->get_desc() << std::endl;
     ++cIt;
   }
 
+  // Returning false here will stop parsing arguments, non-fatally
   return false;
 }
 
@@ -205,22 +205,26 @@ bool manager::run(int argc, char **argv) {
     ++arg;
   }
 
-  if (has_invalid()) {
-    return false;
-  } else {
+  std::vector<ArgList>::const_iterator argIt = final_args.begin();
+  while (argIt != final_args.end()) {
+    t_optlist_cit item;
+    std::string opt_arg;
 
-    std::vector<ArgList>::const_iterator argIt = final_args.begin();
-    while (argIt != final_args.end()) {
-      t_optlist_cit item;
-      std::string opt_arg;
+    std::tie(item, opt_arg) = *argIt;
 
-      std::tie(item, opt_arg) = *argIt;
-      (*item)->parse(opt_arg);
+    if (!(*item)->on_set(opt_arg)) {
+      // Stops parsing anymore arguments.
 
-      ++argIt;
+      // Only invalid if marked as invalid
+      if (!(*item)->is_valid()) {
+        error_arg_ = (*item)->get_name();
+      }
+      return false;
     }
 
-    return true;
+    ++argIt;
   }
+
+  return true;
 }
 }

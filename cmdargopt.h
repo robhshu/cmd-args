@@ -10,16 +10,20 @@ protected:
 
   std::string name_;
   std::string desc_;
+  bool touched_;
   bool required_;
 
 public:
-  opt() : required_(true) {}
+  opt() : touched_(false), required_(true) {}
 
   virtual ~opt() {}
-  virtual bool parse(const std::string &) { return false; }
+  virtual bool on_set(const std::string &) { return false; }
 
-  const std::string &name() const { return name_; }
-  const std::string &desc() const { return desc_; }
+  virtual bool is_valid() { return touched_; }
+  const bool is_required() const { return required_; }
+
+  const std::string &get_name() const { return name_; }
+  const std::string &get_desc() const { return desc_; }
 };
 };
 
