@@ -24,7 +24,7 @@ bool parse_storage(const std::string &raw, long long &res) {
   if (raw.empty()) {
     return false;
   } else {
-    res = std::strtol(raw.c_str(), nullptr, 10);
+    res = std::strtoll(raw.c_str(), nullptr, 10);
     return true;
   }
 }
