@@ -1,5 +1,7 @@
 #include "cmdargparser.h"
 
+#include <cstdlib>
+
 namespace cmdargs {
 bool parse_storage(const std::string &raw, bool &res) {
   if (raw.empty()) {
