@@ -15,11 +15,11 @@ script:
 
 after_success:
   - ./main
-  - ./main --verbose
-  - ./main --verbose=1
-  - ./main --verbose=0
-  - ./main --verbose 1
-  - ./main --verbose 0
-  - ./main --verbose 0 --verbose
+  - ./main --version
+  - ./main --my_flag
+  - ./main --my_flag=1
+  - ./main --my_flag=0
+  - ./main --my_flag 1
+  - ./main --my_flag 0
   - ./main --fake_arg
   - ./main --help
