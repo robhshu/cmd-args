@@ -11,7 +11,7 @@ CFLAGS = -Wall -c $(DEBUG) -std=c++0x
 LFLAGS = -Wall $(DEBUG) -std=c++0x
 
 # Target objects
-OBJS = main.o CommandArguments.o
+OBJS = main.o cmdargmanager.o cmdargparser.o
 
 #########################################
 
@@ -27,8 +27,11 @@ clean:
 
 # Object dependencies
 
-main.o : main.cc CommandArguments.cc
+main.o : main.cc cmdargmanager.cc
 	$(CC) $(CFLAGS) main.cc
 
-CommandArguments.o : CommandArguments.cc CommandArguments.h
-	$(CC) $(CFLAGS) CommandArguments.cc
+cmdargmanager.o : cmdargmanager.cc cmdargmanager.h
+	$(CC) $(CFLAGS) cmdargmanager.cc
+
+cmdargparser.o : cmdargparser.cc cmdargparser.h
+	$(CC) $(CFLAGS) cmdargparser.cc

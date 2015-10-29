@@ -18,27 +18,35 @@ Modern, lightweight command-line argument helper written in C++.
 ### Code
 
 ```cpp
-#include "CommandArguments.h"
+#include "cmdargmanager.h"
 #include <iostream>
 
 int main(int argc, char **argv) {
-  CommandArguments Args;
+  cmdargs::manager arg_man(argc, argv);
 
-  CommandOptionFlagStorage *flagVerbose(
-      Args.AddFlag("verbose", "Verbose console output", false));
+  std::cout << arg_man.app_name() << std::endl;
 
-  if (!Args.ApplyArgumentList(argc, argv)) {
-    if (Args.HasInvalid()) {
-      std::cout << "Unrecognised option \"" << Args.GetInvalid() << "\""
+  bool *argFlag = arg_man.add<bool>("my_flag", false);
+
+  arg_man.add_cb("version", [&](const std::string &) -> bool {
+    std::cout << "Version 1.0!" << std::endl;
+    return false;
+  });
+
+  if (!arg_man.run()) {
+    if (arg_man.has_invalid()) {
+      std::cout << "Unrecognised option \"" << arg_man.last_invalid() << "\""
                 << std::endl;
     }
+
     return 0;
   }
 
-  std::cout << "Verbose == " << flagVerbose->Get() << std::endl;
+  std::cout << "my_flag == " << *argFlag << std::endl;
 
   return 0;
 }
+
 
 ```
 
@@ -46,9 +54,11 @@ int main(int argc, char **argv) {
 
 Enable verbose mode:
 
-* `main --verbose`
-* `main --verbose=1`
-* `main --verbose 1`
+* `main`
+* `main --version`
+* `main --my_flag`
+* `main --my_flag=1`
+* `main --my_flag 1`
 
 View all supported arguments
 
